@@ -1,16 +1,9 @@
 'use client';
+import { useUploadThing } from "@/utils/uploadthing";
 import UploadFormInput from "./upload-form-input";
 import { z } from "zod";
 
-export default function UploadForm(){
-
-    const handleSubmit = (e:React.FormEvent<HTMLFormElement>) => {
-        console.log('submitted');
-        e.preventDefault();
-        const formData = new FormData(e.currentTarget); 
-        const file = formData.get('file') as File; 
-
-        const schema = z.object({
+const schema = z.object({
         file: z.instanceof(File,{message:"Invalid File"})
         .refine((file) => file.size <= 2 * 1024 *1024,
             "File Size must be less than 20MB",
@@ -20,6 +13,32 @@ export default function UploadForm(){
             )
 
     })
+
+export default function UploadForm(){
+
+     
+
+    const {startUpload, routeConfig} = useUploadThing(
+        'pdfUploader',{
+            onClientUploadComplete: () => {
+                console.log('uploaded successfully');
+            },
+            onUploadError: (err) => {
+                console.error('upload failed due to error',err);
+            },
+            onUploadBegin: ({file}) => {
+                console.log('upload has begun for',file);
+            }
+        })
+    
+
+    const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
+        console.log('submitted');
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget); 
+        const file = formData.get('file') as File; 
+
+       
 
 
          const validatedFields = schema.safeParse({file}) 
@@ -36,12 +55,13 @@ export default function UploadForm(){
 
     }
 
-     
+    const resp = await startUpload([file]); 
+    if(!resp){
+        return;
     }
 
-   
-    
-
+     
+    }
    
     return (
       <div className="flex flex-col gap-8 w-full max-w-2xl mx-auto">
