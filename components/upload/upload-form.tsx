@@ -1,4 +1,5 @@
 'use client';
+import { generatePdfSummary } from "@/actions/upload-actions";
 
 import { useUploadThing } from "@/utils/uploadthing";
 import UploadFormInput from "./upload-form-input";
@@ -65,7 +66,10 @@ export default function UploadForm() {
     toast("📃 Processing PDF", {
       description: "Hang tight, our AI is processing your document ✨",
     });
-  };
+
+    const summary = await generatePdfSummary(resp); 
+    console.log(summary);
+  }; 
 
   return (
     <div className="flex flex-col gap-8 w-full max-w-2xl mx-auto">
