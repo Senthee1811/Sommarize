@@ -1,27 +1,29 @@
 import OpenAI from "openai"; 
+import { SUMMARY_SYSTEM_PROMPT } from "@/utils/prompts";
 const openai = new OpenAI(
     {
         apiKey : process.env.OPENAI_API_KEY,
 
     }
 ) 
-export async function generateSummaryFromOpenAI(pdfText:string){
-    const completion = await openai.chat.completions.create({
-    model: 'gpt-4o',
-    messages:[
-        {
-            role:'system',
-            content:'You are a helpful assistant.'
-        },
-        {
-            role:'user',
-            content: '',
-        },
-    ],
-    temperature: 0.7,
-    max_tokens: 1500
-}); 
-
-console.log(completion.choices[0].message);
-
+export async function generateSummaryFromOpenAI(text: string) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          { role: "system", content: SUMMARY_SYSTEM_PROMPT },
+          { role: "user", content: text }
+        ]
+      });
+      return response.choices[0].message.content;
+    } catch (error: any) {
+      if (error?.status === 429 && attempt < 2) {
+        const delay = Math.pow(2, attempt) * 1000; // exponential backoff
+        await new Promise(res => setTimeout(res, delay));
+        continue;
+      }
+      throw error;
+    }
+  }
 }

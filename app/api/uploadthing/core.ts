@@ -18,7 +18,7 @@ export const ourFileRouter = {
     .onUploadComplete(
       async ({ metadata, file }) => {
         console.log("upload completed for user id", metadata.userId);
-        console.log("file url", file.url);
+        console.log("file url", file.ufsUrl);
 
         // Only return JSON-serializable values
         return {
