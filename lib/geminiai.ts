@@ -40,9 +40,6 @@ export const generateSummaryFromGemini = async (
       return response.text()
         
     } catch (error: any) {
-        if(error?.status === 429){
-            throw new Error('Rate Limit Exceeded')
-        }
         console.log('GeminiAPI error',error);
         throw error;
         

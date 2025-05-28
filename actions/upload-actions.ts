@@ -2,6 +2,7 @@
 import { fetchAndExtractPdfText} from "@/lib/langchain";
 import { generateSummaryFromOpenAI } from "@/lib/openai";
 import { generateSummaryFromGemini } from "@/lib/geminiai";
+import {auth} from "@clerk/nextjs/server";
 export async function generatePdfSummary(uploadResponse:[{
     serverData:{
         userId: string;
@@ -77,6 +78,40 @@ export async function generatePdfSummary(uploadResponse:[{
             success: false,
             message:"File Upload Failed",
             data:null
+        }
+        
+    }
+
+} 
+
+async function savePdfSummary(){
+    try {
+        
+    } catch (error) {
+        console.error("Error on Saving PDF summaries",error);
+        
+    }
+
+}
+
+export async function storePdfSummaryAction(){
+
+    let savedPdfSummary;
+    try {
+        const {userId} = await auth();
+
+        if(!userId){
+            return{
+                success:false,
+                message:"User Not Found",
+            };
+        }
+        savedPdfSummary = await savePdfSummary();
+        
+    } catch (error) {
+        return {
+            success: false,
+            message: error instanceof Error ? error.message:"Failed to store the summary",
         }
         
     }
